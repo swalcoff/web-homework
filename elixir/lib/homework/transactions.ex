@@ -7,6 +7,7 @@ defmodule Homework.Transactions do
   alias Homework.Repo
 
   alias Homework.Transactions.Transaction
+  alias Homework.Companies.Company
 
   @doc """
   Returns the list of transactions.
@@ -18,7 +19,10 @@ defmodule Homework.Transactions do
 
   """
   def list_transactions(_args) do
-    Repo.all(Transaction)
+    list = Repo.all(Transaction)
+    Enum.map(list, fn elem ->
+      Map.update!(elem, :amount, fn x -> x/100 end)
+    end)
   end
 
   @doc """
@@ -50,8 +54,9 @@ defmodule Homework.Transactions do
 
   """
   def create_transaction(attrs \\ %{}) do
+    conv = %{attrs | amount: round(attrs.amount * 100)}
     %Transaction{}
-    |> Transaction.changeset(attrs)
+    |> Transaction.changeset(conv)
     |> Repo.insert()
   end
 
@@ -100,5 +105,14 @@ defmodule Homework.Transactions do
   """
   def change_transaction(%Transaction{} = transaction, attrs \\ %{}) do
     Transaction.changeset(transaction, attrs)
+  end
+
+  def search_transactions(min, max) do
+    # list_transactions = Repo.get!(Transaction, id)
+    from(
+      p in Transaction,
+      where: (p.amount < ^max) and (p.amount > ^min)
+    )
+    |> Repo.all()
   end
 end

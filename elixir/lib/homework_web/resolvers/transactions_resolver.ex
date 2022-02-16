@@ -66,4 +66,18 @@ defmodule HomeworkWeb.Resolvers.TransactionsResolver do
         {:error, "could not update transaction: #{inspect(error)}"}
     end
   end
+
+  @doc """
+  Search for transactions
+  """
+  def search_transactions(_root, %{min: min, max: max}, _info) do
+    # transaction = Transactions.get_transaction!(id)
+
+    case Transactions.search_transactions(min, max) do
+      nil ->
+        {:error, "Transactions between #{min} and #{max} not found"}
+      transaction ->
+        {:ok, transaction}
+    end
+  end
 end
